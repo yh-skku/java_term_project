@@ -1,11 +1,12 @@
 import java.awt.Image;
 
 public class Bullet extends Sprite {
-	private SpriteMager sm;
+	private Game game;
+	SpriteManager sm;
 	
-	public Bullet (SpriteManager sm, Image image, int x, int y) {
+	public Bullet (Game game, Image image, int x, int y) {
 		super(image, x, y);
-		this.sm = sm;
+		this.game = game;
 		dy = -5;
 	}
 
@@ -20,6 +21,7 @@ public class Bullet extends Sprite {
 		if (other instanceof Enemy) {
 			sm.removeSprite(other);
 			sm.removeSprite(this);
+			game.score += 10;
 		}
 	}
 }
