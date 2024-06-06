@@ -75,14 +75,8 @@ public class Game extends Canvas implements Runnable {
 
             while (delta >= 1) {
                 if (!paused && !gameOver) {
-                    tick();
+                    tick(); // 게임 로직 업데이트
                 }
-                delta--;
-            }
-            if (running && !paused && !gameOver) {
-                render();
-            }
-                tick(); // 게임 로직 업데이트
                 delta--;
             }
 
@@ -100,7 +94,6 @@ public class Game extends Canvas implements Runnable {
                 frames = 0;
             }
         }
-        stop();
     }
 
     private void tick() {
