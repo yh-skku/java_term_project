@@ -16,7 +16,7 @@ public class GameSettings {
     static {
         try {
 
-            playerImage = ImageIO.read(new File("assets/images/background.png"));
+            playerImage = ImageIO.read(new File("assets/images/spaceship.png"));
             enemyImage = ImageIO.read(new File("assets/images/monster.png"));
             bulletImage = ImageIO.read(new File("assets/images/bullet.png"));
             backgroundImage = ImageIO.read(new File("assets/images/background.png"));

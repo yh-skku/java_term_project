@@ -2,23 +2,23 @@ package game;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
 import input.InputHandler;
 import entities.Player;
 import graphics.Sprite;
-import graphics.Renderer;
-
+import graphics.SpriteManager;
 
 public class Game extends Canvas implements Runnable {
     private boolean running = false;
     private boolean paused = false;
     private boolean gameOver = false;
-    private Thread thread;
-    private Player player;
-    private List<Sprite> sprites = new ArrayList<>();
+    private Thread gameThread;
+    private Thread enemySpawnThread;
+    private Thread collisionDetectionThread;
+    private SpriteManager spriteManager;
     private int score = 0;
+    private static final long ENEMY_SPAWN_INTERVAL = 2000; // 2초마다 적 생성
 
     public Game() {
         JFrame frame = new JFrame("Galaga Game");
@@ -27,24 +27,29 @@ public class Game extends Canvas implements Runnable {
         frame.add(this);
         frame.setVisible(true);
 
-        player = new Player(this, GameSettings.playerImage, GameSettings.WIDTH / 2, GameSettings.HEIGHT - 50);
-        sprites.add(player);
-
-        this.addKeyListener(new InputHandler(player, this));
+        spriteManager = new SpriteManager(this);
+        spriteManager.playerDeparted();
+        this.addKeyListener(new InputHandler(spriteManager.getPlayer(), this));
     }
 
     public synchronized void start() {
         if (running) return;
         running = true;
-        thread = new Thread(this);
-        thread.start();
+        gameThread = new Thread(this);
+        enemySpawnThread = new Thread(new EnemySpawnTask());
+        collisionDetectionThread = new Thread(new CollisionDetectionTask());
+        gameThread.start();
+        enemySpawnThread.start();
+        collisionDetectionThread.start();
     }
 
     public synchronized void stop() {
         if (!running) return;
         running = false;
         try {
-            thread.join();
+            gameThread.join();
+            enemySpawnThread.join();
+            collisionDetectionThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -59,57 +64,33 @@ public class Game extends Canvas implements Runnable {
         double delta = 0;
         long timer = System.currentTimeMillis();
         int frames = 0;
-
-        BufferStrategy bs = this.getBufferStrategy();
-        if (bs == null) {
-            this.createBufferStrategy(3);
-            bs = this.getBufferStrategy();
-        }
-
-        long lastTickTime = System.currentTimeMillis(); // 마지막 로직 업데이트 시간
-
         while (running) {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
-
             while (delta >= 1) {
                 if (!paused && !gameOver) {
-                    tick(); // 게임 로직 업데이트
+                    tick();
                 }
                 delta--;
             }
-
-            // 일정 간격마다 렌더링
-            if (System.currentTimeMillis() - lastTickTime >= 1000 / amountOfTicks) {
-                Renderer renderer = new Renderer(bs);
-                renderer.render();
-                lastTickTime = System.currentTimeMillis(); // 마지막 로직 업데이트 시간 갱신
+            if (running && !paused && !gameOver) {
+                render();
             }
             frames++;
-
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
                 System.out.println("FPS: " + frames);
                 frames = 0;
             }
         }
+        stop();
     }
 
     private void tick() {
+        List<Sprite> sprites = spriteManager.getSprites();
         for (int i = 0; i < sprites.size(); i++) {
             sprites.get(i).move();
-        }
-        // 충돌 처리 로직
-        for (int i = 0; i < sprites.size(); i++) {
-            for (int j = i + 1; j < sprites.size(); j++) {
-                Sprite s1 = sprites.get(i);
-                Sprite s2 = sprites.get(j);
-                if (s1.checkCollision(s2)) {
-                    s1.handleCollision(s2);
-                    s2.handleCollision(s1);
-                }
-            }
         }
     }
 
@@ -125,9 +106,15 @@ public class Game extends Canvas implements Runnable {
         g.drawImage(GameSettings.backgroundImage, 0, 0, GameSettings.WIDTH, GameSettings.HEIGHT, null);
 
         // 스프라이트 그리기
+        List<Sprite> sprites = spriteManager.getSprites();
         for (Sprite sprite : sprites) {
             sprite.draw(g);
         }
+
+        // 점수 그리기
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.drawString("Score: " + score, 10, 20);
 
         // 게임 오버 메시지 그리기
         if (gameOver) {
@@ -140,8 +127,12 @@ public class Game extends Canvas implements Runnable {
         bs.show();
     }
 
+    public void addSprite(Sprite sprite) {
+        spriteManager.getSprites().add(sprite);
+    }
+
     public void removeSprite(Sprite sprite) {
-        sprites.remove(sprite);
+        spriteManager.removeSprite(sprite);
     }
 
     public void addScore(int points) {
@@ -153,15 +144,55 @@ public class Game extends Canvas implements Runnable {
     }
 
     public void reset() {
-        player = new Player(this, GameSettings.playerImage, GameSettings.WIDTH / 2, GameSettings.HEIGHT - 50);
-        sprites.clear();
-        sprites.add(player);
+        spriteManager = new SpriteManager(this);
         gameOver = false;
-        this.addKeyListener(new InputHandler(player, this));
+        this.addKeyListener(new InputHandler(spriteManager.getPlayer(), this));
     }
 
     public void gameOver() {
         gameOver = true;
         stop();
+    }
+
+    // 적 출현 작업을 처리하는 내부 클래스
+    private class EnemySpawnTask implements Runnable {
+        @Override
+        public void run() {
+            while (running && !gameOver) {
+                try {
+                    Thread.sleep(ENEMY_SPAWN_INTERVAL);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (!paused && !gameOver) {
+                    spriteManager.enemyAppeared();
+                }
+            }
+        }
+    }
+
+    // 충돌 감지 작업을 처리하는 내부 클래스
+    private class CollisionDetectionTask implements Runnable {
+        @Override
+        public void run() {
+            while (running && !gameOver) {
+                List<Sprite> sprites = spriteManager.getSprites();
+                for (int i = 0; i < sprites.size(); i++) {
+                    for (int j = i + 1; j < sprites.size(); j++) {
+                        Sprite s1 = sprites.get(i);
+                        Sprite s2 = sprites.get(j);
+                        if (s1.checkCollision(s2)) {
+                            s1.handleCollision(s2);
+                            s2.handleCollision(s1);
+                        }
+                    }
+                }
+                try {
+                    Thread.sleep(10); // 충돌 감지 주기 설정
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

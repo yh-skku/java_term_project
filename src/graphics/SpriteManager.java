@@ -1,22 +1,29 @@
-import game.GameSettings;
-import java.util.ArrayList;
+package graphics;
 
-class SpriteManager {
-    private ArrayList sprites = new ArrayList();
-    private Sprite player;
+import game.GameSettings;
+import game.Game;
+import entities.Player;
+import entities.Bullet;
+import entities.Enemy;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class SpriteManager {
+    private ArrayList<Sprite> sprites = new ArrayList<>();
+    private Player player;
     private Game game;
-    
-    class SpriteManager(Game game) {
+
+    public SpriteManager(Game game) {
         this.game = game;
     }
 
     public void removeSprite(Sprite sprite) {
-        sprite.flag = true;
         sprites.remove(sprite);
     }
 
     public void playerDeparted() {
-        player = new Player(game, GameSettings.playerImage, 500, 650);
+        player = new Player(game, GameSettings.playerImage, 500, 600);
+        sprites.add(player);
     }
 
     public void fire() {
@@ -27,5 +34,13 @@ class SpriteManager {
     public void enemyAppeared() {
         Enemy enemy = new Enemy(game, GameSettings.enemyImage, new Random().nextInt(950), 0);
         sprites.add(enemy);
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public ArrayList<Sprite> getSprites() {
+        return sprites;
     }
 }
