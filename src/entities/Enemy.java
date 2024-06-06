@@ -13,7 +13,7 @@ public class Enemy extends Sprite {
 	public void move() {
     		y += 30;
     		if (y > 650) {
-      			game.gameOver();
+      			game.stop();
     		}
 		super.move();
   	}
