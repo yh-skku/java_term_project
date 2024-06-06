@@ -15,7 +15,6 @@ public class SpriteManager {
 
     public SpriteManager(Game game) {
         this.game = game;
-        playerDeparted();
     }
 
     public void removeSprite(Sprite sprite) {
@@ -23,7 +22,7 @@ public class SpriteManager {
     }
 
     public void playerDeparted() {
-        player = new Player(game, GameSettings.playerImage, 500, 650);
+        player = new Player(game, GameSettings.playerImage, 500, 600);
         sprites.add(player);
     }
 
@@ -37,13 +36,11 @@ public class SpriteManager {
         sprites.add(enemy);
     }
 
-    // 스프라이트 목록을 가져오는 메서드 추가
-    public ArrayList<Sprite> getSprites() {
-        return sprites;
-    }
-
     public Player getPlayer() {
         return player;
     }
 
+    public ArrayList<Sprite> getSprites() {
+        return sprites;
+    }
 }

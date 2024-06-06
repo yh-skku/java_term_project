@@ -13,10 +13,11 @@ public class Game extends Canvas implements Runnable {
     private boolean running = false;
     private boolean paused = false;
     private boolean gameOver = false;
-    private Thread thread;
+    private Thread gameThread;
+    private Thread enemySpawnThread;
+    private Thread collisionDetectionThread;
     private SpriteManager spriteManager;
     private int score = 0;
-    private long lastEnemySpawnTime = 0;
     private static final long ENEMY_SPAWN_INTERVAL = 2000; // 2초마다 적 생성
 
     public Game() {
@@ -27,22 +28,28 @@ public class Game extends Canvas implements Runnable {
         frame.setVisible(true);
 
         spriteManager = new SpriteManager(this);
-
+        spriteManager.playerDeparted();
         this.addKeyListener(new InputHandler(spriteManager.getPlayer(), this));
     }
 
     public synchronized void start() {
         if (running) return;
         running = true;
-        thread = new Thread(this);
-        thread.start();
+        gameThread = new Thread(this);
+        enemySpawnThread = new Thread(new EnemySpawnTask());
+        collisionDetectionThread = new Thread(new CollisionDetectionTask());
+        gameThread.start();
+        enemySpawnThread.start();
+        collisionDetectionThread.start();
     }
 
     public synchronized void stop() {
         if (!running) return;
         running = false;
         try {
-            thread.join();
+            gameThread.join();
+            enemySpawnThread.join();
+            collisionDetectionThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -84,23 +91,6 @@ public class Game extends Canvas implements Runnable {
         List<Sprite> sprites = spriteManager.getSprites();
         for (int i = 0; i < sprites.size(); i++) {
             sprites.get(i).move();
-        }
-        // 적 출현 로직
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastEnemySpawnTime >= ENEMY_SPAWN_INTERVAL) {
-            spriteManager.enemyAppeared();
-            lastEnemySpawnTime = currentTime;
-        }
-        // 충돌 처리 로직
-        for (int i = 0; i < sprites.size(); i++) {
-            for (int j = i + 1; j < sprites.size(); j++) {
-                Sprite s1 = sprites.get(i);
-                Sprite s2 = sprites.get(j);
-                if (s1.checkCollision(s2)) {
-                    s1.handleCollision(s2);
-                    s2.handleCollision(s1);
-                }
-            }
         }
     }
 
@@ -162,5 +152,47 @@ public class Game extends Canvas implements Runnable {
     public void gameOver() {
         gameOver = true;
         stop();
+    }
+
+    // 적 출현 작업을 처리하는 내부 클래스
+    private class EnemySpawnTask implements Runnable {
+        @Override
+        public void run() {
+            while (running && !gameOver) {
+                try {
+                    Thread.sleep(ENEMY_SPAWN_INTERVAL);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (!paused && !gameOver) {
+                    spriteManager.enemyAppeared();
+                }
+            }
+        }
+    }
+
+    // 충돌 감지 작업을 처리하는 내부 클래스
+    private class CollisionDetectionTask implements Runnable {
+        @Override
+        public void run() {
+            while (running && !gameOver) {
+                List<Sprite> sprites = spriteManager.getSprites();
+                for (int i = 0; i < sprites.size(); i++) {
+                    for (int j = i + 1; j < sprites.size(); j++) {
+                        Sprite s1 = sprites.get(i);
+                        Sprite s2 = sprites.get(j);
+                        if (s1.checkCollision(s2)) {
+                            s1.handleCollision(s2);
+                            s2.handleCollision(s1);
+                        }
+                    }
+                }
+                try {
+                    Thread.sleep(10); // 충돌 감지 주기 설정
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
