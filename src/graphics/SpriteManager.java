@@ -2,13 +2,17 @@ import game.GameSettings;
 import java.util.ArrayList;
 
 class SpriteManager {
-    private ArrayList enemies = new ArrayList();
-    private ArrayList bullets = new ArrayList();
+    private ArrayList sprites = new ArrayList();
     private Sprite player;
     private Game game;
     
     class SpriteManager(Game game) {
         this.game = game;
+    }
+
+    public void removeSprite(Sprite sprite) {
+        sprite.flag = true;
+        sprites.remove(sprite);
     }
 
     public void playerDeparted() {
@@ -17,11 +21,11 @@ class SpriteManager {
 
     public void fire() {
         Bullet bullet = new Bullet(game, GameSettings.bulletImage, player.getX() + 10, 620);
-        bullets.add(bullet);
+        sprites.add(bullet);
     }
 
     public void enemyAppeared() {
         Enemy enemy = new Enemy(game, GameSettings.enemyImage, new Random().nextInt(950), 0);
-        enemiese.add(enemy);
+        sprites.add(enemy);
     }
 }
