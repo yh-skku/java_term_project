@@ -20,6 +20,7 @@ public class Enemy extends Sprite {
 		if (y > 650) { // 화면 하단에 도달하면
 			game.gameOver();
 		}
+
 		super.move();
 	}
 }

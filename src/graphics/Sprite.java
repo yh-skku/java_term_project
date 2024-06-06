@@ -12,6 +12,9 @@ public class Sprite {
 	protected int dx;
 	protected int dy;
 
+
+	boolean flag = false;
+	
 	public Sprite(Image image, int x, int y) {
 		this.image = image;
 		this.x = x;

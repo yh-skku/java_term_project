@@ -1,5 +1,4 @@
 package entities;
-
 import java.awt.Image;
 import graphics.Sprite;
 import game.Game;

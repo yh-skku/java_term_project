@@ -8,6 +8,8 @@ import javax.swing.JFrame;
 import input.InputHandler;
 import entities.Player;
 import graphics.Sprite;
+import graphics.Renderer;
+
 
 public class Game extends Canvas implements Runnable {
     private boolean running = false;
@@ -57,10 +59,20 @@ public class Game extends Canvas implements Runnable {
         double delta = 0;
         long timer = System.currentTimeMillis();
         int frames = 0;
+
+        BufferStrategy bs = this.getBufferStrategy();
+        if (bs == null) {
+            this.createBufferStrategy(3);
+            bs = this.getBufferStrategy();
+        }
+
+        long lastTickTime = System.currentTimeMillis(); // 마지막 로직 업데이트 시간
+
         while (running) {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
+
             while (delta >= 1) {
                 if (!paused && !gameOver) {
                     tick();
@@ -70,7 +82,18 @@ public class Game extends Canvas implements Runnable {
             if (running && !paused && !gameOver) {
                 render();
             }
+                tick(); // 게임 로직 업데이트
+                delta--;
+            }
+
+            // 일정 간격마다 렌더링
+            if (System.currentTimeMillis() - lastTickTime >= 1000 / amountOfTicks) {
+                Renderer renderer = new Renderer(bs);
+                renderer.render();
+                lastTickTime = System.currentTimeMillis(); // 마지막 로직 업데이트 시간 갱신
+            }
             frames++;
+
             if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
                 System.out.println("FPS: " + frames);
