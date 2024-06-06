@@ -1,7 +1,9 @@
 package entities;
+
 import java.awt.Image;
 import graphics.Sprite;
 import game.Game;
+import game.GameSettings;
 
 public class Player extends Sprite {
 	private Game game;
@@ -43,6 +45,7 @@ public class Player extends Sprite {
 	}
 
 	public void shoot() {
-		// 총알 발사 로직 구현
+		Bullet bullet = new Bullet(game, GameSettings.bulletImage, getX() + getWidth() / 2, getY());
+		game.addSprite(bullet);
 	}
 }
