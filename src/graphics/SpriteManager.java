@@ -1,4 +1,5 @@
 import game.GameSettings;
+import java.util.ArrayList;
 
 class SpriteManager {
     private ArrayList enemies = new ArrayList();
