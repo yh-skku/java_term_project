@@ -2,6 +2,7 @@ package game;
 
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import java.io.File;
 import java.io.IOException;
 import java.io.File;
 public class GameSettings {
@@ -14,6 +15,7 @@ public class GameSettings {
 
     static {
         try {
+
             playerImage = ImageIO.read(new File("assets/images/background.png"));
             enemyImage = ImageIO.read(new File("assets/images/monster.png"));
             bulletImage = ImageIO.read(new File("assets/images/bullet.png"));
