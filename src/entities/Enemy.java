@@ -7,14 +7,15 @@ public class Enemy extends Sprite {
 		super(image, x, y);
 		this.game = game;
 		dy = -3;
-    dx = 0
+    		dx = 0
 	}
 
 	public void move() {
-    y += 30;
-    if (y > 600) {
-      game.gameOver();
-    }
-  }
-  super.move();
+    		y += 30;
+    		if (y > 650) {
+      			game.gameOver();
+    		}
+		super.move();
+  	}
+  	
 }
