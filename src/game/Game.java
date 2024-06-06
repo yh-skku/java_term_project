@@ -3,6 +3,7 @@ package game;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import javax.swing.JFrame;
+import input.InputHandler;
 
 public class Game extends Canvas implements Runnable {
     private boolean running = false;
@@ -12,6 +13,7 @@ public class Game extends Canvas implements Runnable {
         JFrame frame = new JFrame("Galaga Game");
         frame.setSize(GameSettings.WIDTH, GameSettings.HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        background =
         frame.add(this);
         frame.setVisible(true);
         this.addKeyListener(new InputHandler());
