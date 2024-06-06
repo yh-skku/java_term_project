@@ -44,8 +44,9 @@ public class Game extends Canvas implements Runnable {
     }
 
     public synchronized void stop() {
-        if (!running) return;
         running = false;
+        gameOver = true;
+        render();
         try {
             gameThread.join();
             enemySpawnThread.join();
@@ -84,6 +85,7 @@ public class Game extends Canvas implements Runnable {
                 frames = 0;
             }
         }
+        render();
         stop();
     }
 
@@ -118,9 +120,10 @@ public class Game extends Canvas implements Runnable {
 
         // 게임 오버 메시지 그리기
         if (gameOver) {
+            System.out.println("game over");
             g.setColor(Color.RED);
             g.setFont(new Font("Arial", Font.BOLD, 50));
-            g.drawString("Game Over", GameSettings.WIDTH / 2 - 150, GameSettings.HEIGHT / 2);
+            g.drawString("Game Over", 370, 350);
         }
 
         g.dispose();
@@ -150,8 +153,8 @@ public class Game extends Canvas implements Runnable {
     }
 
     public void gameOver() {
+        running = false;
         gameOver = true;
-        stop();
     }
 
     // 적 출현 작업을 처리하는 내부 클래스

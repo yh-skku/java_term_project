@@ -10,7 +10,7 @@ public class Enemy extends Sprite {
 	public Enemy(Game game, Image image, int x, int y) {
 		super(image, x, y);
 		this.game = game;
-		setDy(3); // 적은 아래로 이동
+		setDy(4); // 적은 아래로 이동
 		setDx(0);
 	}
 
@@ -20,6 +20,5 @@ public class Enemy extends Sprite {
 		if (y > 650) { // 화면 하단에 도달하면
 			game.gameOver();
 		}
-		super.move();
 	}
 }
