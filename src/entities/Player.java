@@ -7,14 +7,14 @@ public class Player extends Sprite {
 		super(image, x, y);
 		this.game = game;
 		dx = 0;
-    dy = 0;
+    		dy = 0;
 	}
 
 	public void move() {
-    if ((dx < 0) && (x < 10)) {
+    		if ((dx < 0) && (x < 10)) {
 			return;
 		}
-		if ((dx > 0) && (x > 800)) {
+		if ((dx > 0) && (x > 940)) {
 			return;
 		}
 		super.move();
