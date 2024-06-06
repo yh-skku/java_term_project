@@ -1,3 +1,4 @@
+package entities;
 import java.awt.Image;
 
 public class Player extends Sprite {

@@ -3,7 +3,7 @@ package game;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.IOException;
-
+import java.io.File;
 public class GameSettings {
     public static final int WIDTH = 1000;
     public static final int HEIGHT = 700;
@@ -14,10 +14,10 @@ public class GameSettings {
 
     static {
         try {
-            playerImage = ImageIO.read(GameSettings.class.getResource("/images/spaceship.png"));
-            enemyImage = ImageIO.read(GameSettings.class.getResource("/images/monster.png"));
-            bulletImage = ImageIO.read(GameSettings.class.getResource("/images/bullet.png"));
-            backgroundImage = ImageIO.read(GameSettings.class.getResource("/images/background.jpg"));
+            playerImage = ImageIO.read(new File("assets/images/background.png"));
+            enemyImage = ImageIO.read(new File("assets/images/monster.png"));
+            bulletImage = ImageIO.read(new File("assets/images/bullet.png"));
+            backgroundImage = ImageIO.read(new File("assets/images/background.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
