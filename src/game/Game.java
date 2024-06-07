@@ -4,10 +4,12 @@ import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.util.List;
 import javax.swing.JFrame;
+
 import input.InputHandler;
 import entities.Player;
 import graphics.Sprite;
 import graphics.SpriteManager;
+import graphics.Renderer;
 
 public class Game extends Canvas implements Runnable {
     private boolean running = false;
@@ -18,6 +20,7 @@ public class Game extends Canvas implements Runnable {
     private Thread collisionDetectionThread;
     private SpriteManager spriteManager;
     private int score = 0;
+    private Renderer render;
     private static final long ENEMY_SPAWN_INTERVAL = 2000; // 2초마다 적 생성
 
     public Game() {
@@ -35,6 +38,7 @@ public class Game extends Canvas implements Runnable {
     public synchronized void start() {
         if (running) return;
         running = true;
+        this.createBufferStrategy(3); // BufferStrategy 생성
         gameThread = new Thread(this);
         enemySpawnThread = new Thread(new EnemySpawnTask());
         collisionDetectionThread = new Thread(new CollisionDetectionTask());
@@ -74,8 +78,10 @@ public class Game extends Canvas implements Runnable {
                 }
                 delta--;
             }
+            // bufferstrategy 및 render 생성
             if (running && !paused && !gameOver) {
-                render();
+                this.render = new Renderer(this.getBufferStrategy());
+                this.render.render(this);
             }
             frames++;
             if (System.currentTimeMillis() - timer > 1000) {
@@ -94,38 +100,6 @@ public class Game extends Canvas implements Runnable {
         }
     }
 
-    private void render() {
-        BufferStrategy bs = this.getBufferStrategy();
-        if (bs == null) {
-            this.createBufferStrategy(3);
-            return;
-        }
-        Graphics g = bs.getDrawGraphics();
-
-        // 배경 이미지 그리기
-        g.drawImage(GameSettings.backgroundImage, 0, 0, GameSettings.WIDTH, GameSettings.HEIGHT, null);
-
-        // 스프라이트 그리기
-        List<Sprite> sprites = spriteManager.getSprites();
-        for (Sprite sprite : sprites) {
-            sprite.draw(g);
-        }
-
-        // 점수 그리기
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " + score, 10, 20);
-
-        // 게임 오버 메시지 그리기
-        if (gameOver) {
-            g.setColor(Color.RED);
-            g.setFont(new Font("Arial", Font.BOLD, 50));
-            g.drawString("Game Over", GameSettings.WIDTH / 2 - 150, GameSettings.HEIGHT / 2);
-        }
-
-        g.dispose();
-        bs.show();
-    }
 
     public void addSprite(Sprite sprite) {
         spriteManager.getSprites().add(sprite);
@@ -169,6 +143,18 @@ public class Game extends Canvas implements Runnable {
                 }
             }
         }
+    }
+
+    public SpriteManager getSpriteManager() {
+        return this.spriteManager;
+    }
+
+    public int getScore() {
+        return this.score;
+    }
+
+    public boolean getGameover() {
+        return this.gameOver;
     }
 
     // 충돌 감지 작업을 처리하는 내부 클래스
