@@ -48,8 +48,9 @@ public class Game extends Canvas implements Runnable {
     }
 
     public synchronized void stop() {
-        if (!running) return;
         running = false;
+        gameOver = true;
+        this.render.render(this);
         try {
             gameThread.join();
             enemySpawnThread.join();
@@ -100,7 +101,6 @@ public class Game extends Canvas implements Runnable {
         }
     }
 
-
     public void addSprite(Sprite sprite) {
         spriteManager.getSprites().add(sprite);
     }
@@ -124,8 +124,8 @@ public class Game extends Canvas implements Runnable {
     }
 
     public void gameOver() {
+        running = false;
         gameOver = true;
-        stop();
     }
 
     // 적 출현 작업을 처리하는 내부 클래스
