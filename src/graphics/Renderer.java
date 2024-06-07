@@ -36,13 +36,13 @@ public class Renderer {
         // 점수 그리기
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " + game.getScore(), 10, 20);
+        g.drawString("Score: " + Integer.toString(game.getScore()), 10, 20);
 
         // 게임 오버 메시지 그리기
         if (game.getGameover()) {
             g.setColor(Color.RED);
             g.setFont(new Font("Arial", Font.BOLD, 50));
-            g.drawString("Game Over", 370, 350);
+            g.drawString("Game Over", 400, 350);
         }
 
         g.dispose();

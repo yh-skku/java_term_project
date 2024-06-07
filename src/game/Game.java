@@ -1,15 +1,17 @@
 package game;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferStrategy;
 import java.util.List;
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import input.InputHandler;
-import entities.Player;
 import graphics.Sprite;
 import graphics.SpriteManager;
 import graphics.Renderer;
+import utils.ScoreBoard;
 
 public class Game extends Canvas implements Runnable {
     private boolean running = false;
@@ -20,23 +22,26 @@ public class Game extends Canvas implements Runnable {
     private Thread collisionDetectionThread;
     private SpriteManager spriteManager;
     private int score = 0;
+    private JFrame frame;
     private Renderer render;
     private static final long ENEMY_SPAWN_INTERVAL = 2000; // 2초마다 적 생성
 
     public Game() {
-        JFrame frame = new JFrame("Galaga Game");
+        this.frame = new JFrame("Galaga Game");
+        
         frame.setSize(GameSettings.WIDTH, GameSettings.HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(this);
-        frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
 
         spriteManager = new SpriteManager(this);
         spriteManager.playerDeparted();
         this.addKeyListener(new InputHandler(spriteManager.getPlayer(), this));
+        frame.add(this);
+        frame.setVisible(true);
     }
 
+
     public synchronized void start() {
-        if (running) return;
         running = true;
         this.createBufferStrategy(3); // BufferStrategy 생성
         gameThread = new Thread(this);
@@ -137,6 +142,18 @@ public class Game extends Canvas implements Runnable {
         gameOver = true;
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
     // 적 출현 작업을 처리하는 내부 클래스
     private class EnemySpawnTask implements Runnable {
         @Override
@@ -160,13 +177,11 @@ public class Game extends Canvas implements Runnable {
         return this.spriteManager;
     }
 
-    public int getScore() {
-        return this.score;
-    }
 
     public boolean getGameover() {
         return this.gameOver;
     }
+
 
     // 충돌 감지 작업을 처리하는 내부 클래스
     private class CollisionDetectionTask implements Runnable {
