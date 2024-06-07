@@ -3,6 +3,7 @@ package graphics;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.util.List;
+import java.util.ArrayList;
 
 import game.Game;
 import game.GameSettings;
@@ -24,7 +25,10 @@ public class Renderer {
         g.drawImage(GameSettings.backgroundImage, 0, 0, GameSettings.WIDTH, GameSettings.HEIGHT, null);
 
         // 스프라이트 그리기
-        List<Sprite> sprites = game.getSpriteManager().getSprites();
+        List<Sprite> sprites;
+        synchronized (game.getSpriteManager()) {
+            sprites = new ArrayList<>(game.getSpriteManager().getSprites());
+        }
         for (Sprite sprite : sprites) {
             sprite.draw(g);
         }
@@ -38,7 +42,7 @@ public class Renderer {
         if (game.getGameover()) {
             g.setColor(Color.RED);
             g.setFont(new Font("Arial", Font.BOLD, 50));
-            g.drawString("Game Over", GameSettings.WIDTH / 2 - 150, GameSettings.HEIGHT / 2);
+            g.drawString("Game Over", 370, 350);
         }
 
         g.dispose();

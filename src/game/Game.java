@@ -91,22 +91,31 @@ public class Game extends Canvas implements Runnable {
                 frames = 0;
             }
         }
+        this.render.render(this);
         stop();
+
+
     }
 
     private void tick() {
-        List<Sprite> sprites = spriteManager.getSprites();
-        for (int i = 0; i < sprites.size(); i++) {
-            sprites.get(i).move();
+        synchronized (spriteManager) {
+            List<Sprite> sprites = spriteManager.getSprites();
+            for (int i = 0; i < sprites.size(); i++) {
+                sprites.get(i).move();
+            }
         }
     }
 
     public void addSprite(Sprite sprite) {
-        spriteManager.getSprites().add(sprite);
+        synchronized (spriteManager) {
+            spriteManager.getSprites().add(sprite);
+        }
     }
 
     public void removeSprite(Sprite sprite) {
-        spriteManager.removeSprite(sprite);
+        synchronized (spriteManager) {
+            spriteManager.removeSprite(sprite);
+        }
     }
 
     public void addScore(int points) {
@@ -139,7 +148,9 @@ public class Game extends Canvas implements Runnable {
                     e.printStackTrace();
                 }
                 if (!paused && !gameOver) {
-                    spriteManager.enemyAppeared();
+                    synchronized (spriteManager) {
+                        spriteManager.enemyAppeared();
+                    }
                 }
             }
         }
@@ -162,14 +173,16 @@ public class Game extends Canvas implements Runnable {
         @Override
         public void run() {
             while (running && !gameOver) {
-                List<Sprite> sprites = spriteManager.getSprites();
-                for (int i = 0; i < sprites.size(); i++) {
-                    for (int j = i + 1; j < sprites.size(); j++) {
-                        Sprite s1 = sprites.get(i);
-                        Sprite s2 = sprites.get(j);
-                        if (s1.checkCollision(s2)) {
-                            s1.handleCollision(s2);
-                            s2.handleCollision(s1);
+                synchronized (spriteManager) {
+                    List<Sprite> sprites = spriteManager.getSprites();
+                    for (int i = 0; i < sprites.size(); i++) {
+                        for (int j = i + 1; j < sprites.size(); j++) {
+                            Sprite s1 = sprites.get(i);
+                            Sprite s2 = sprites.get(j);
+                            if (s1.checkCollision(s2)) {
+                                s1.handleCollision(s2);
+                                s2.handleCollision(s1);
+                            }
                         }
                     }
                 }
