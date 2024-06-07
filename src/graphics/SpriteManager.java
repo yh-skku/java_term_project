@@ -26,11 +26,6 @@ public class SpriteManager {
         sprites.add(player);
     }
 
-    public void fire() {
-        Bullet bullet = new Bullet(game, GameSettings.bulletImage, player.getX() + 10, 620);
-        sprites.add(bullet);
-    }
-
     public void enemyAppeared() {
         Enemy enemy = new Enemy(game, GameSettings.enemyImage, new Random().nextInt(950), 0);
         sprites.add(enemy);

@@ -1,9 +1,6 @@
 package game;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferStrategy;
 import java.util.List;
 import javax.swing.*;
 
@@ -11,7 +8,6 @@ import input.InputHandler;
 import graphics.Sprite;
 import graphics.SpriteManager;
 import graphics.Renderer;
-import utils.ScoreBoard;
 
 public class Game extends Canvas implements Runnable {
     private boolean running = false;

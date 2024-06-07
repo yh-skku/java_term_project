@@ -3,8 +3,6 @@ package main;
 import game.Game;
 import utils.ScoreBoard;
 
-import java.awt.*;
-
 public class Main {
     public static void main(String[] args) {
         Menu menu = new Menu();

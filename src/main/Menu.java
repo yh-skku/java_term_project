@@ -1,7 +1,5 @@
 package main;
 
-import game.Game;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;

@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
-import java.io.File;
+
 public class GameSettings {
     public static final int WIDTH = 1000;
     public static final int HEIGHT = 700;
